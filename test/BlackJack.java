@@ -1,5 +1,6 @@
 package test;
-import card_game.*;
+import card_game.bj.*;
+import card_game.general.*;
 import java.util.LinkedList;
 import javax.swing.JOptionPane;
 import java.io.FileReader;

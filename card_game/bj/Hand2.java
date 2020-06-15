@@ -1,29 +1,54 @@
-package card_game;
+package card_game.bj;
 
+import card_game.general.*;
 import java.util.LinkedList;
 
 public class Hand2{
     private final LinkedList<Card> l = new LinkedList<>();
     private int b;
     
-    public Hand2(Deck d) throws Exception{
+    private Deck defaultDeck;
+    
+    //TODO rework all of these to use a common init
+    //      public Hand2(Card[] l, Deck d) and public Hand2(Card[] l)
+    
+    public Hand2(Deck d) throws OverdrawnException{
         b = 0;
         hit(d); hit(d);
+        
+        defaultDeck = d;
     }
-    protected Hand2 (Card c, Deck d) throws Exception{
+    protected Hand2 (Card c, Deck d) throws OverdrawnException{
         b=0;
         l.add(c);
         hit(d);
+        
+        defaultDeck = d;
     }
     
-    public Hand2(Card c, Card d){
+    //TODO deck num exception (ctrl-f when refactoring)
+    public Hand2(Card c, Card d) throws Exception, OverdrawnException{
         l.add(c);
         l.add(d);
+        
+        defaultDeck = new Deck();
+        if(!(defaultDeck.draw(c) && defaultDeck.draw(d))) throw new OverdrawnException("cannot create... gonna refactor anyway, who cares");
     }
     
-    public void hit(Deck d) throws Exception
-    {
+    //TODO deck num exception (ctrl-f when refactoring)
+    public Hand2() throws Exception{
+        defaultDeck = new Deck();
+        
+        b = 0;
+        hit(defaultDeck); hit(defaultDeck);
+    }
+    
+    public void hit(Deck d) throws OverdrawnException{
         l.add(d.drawRand());
+    }
+    
+    public void hit() throws OverdrawnException{
+        hit(defaultDeck);
     }
     
     public Hand2 split(Deck d) throws Exception{
@@ -37,11 +62,19 @@ public class Hand2{
         return new Hand2(l.remove(1),d);
     }
     
+    public Hand2 split() throws Exception{
+        return split(defaultDeck);
+    }
+    
     public void bet(int n){
         b+=n;
     }
     public int getBet(){
         return b;
+    }
+    
+    public void doubledown(){
+        b *= 2;
     }
     
     public String toString(){
@@ -51,7 +84,7 @@ public class Hand2{
         return "[XXXX, "+ l.get(1) +"]";
     }
     
-    public boolean dealerHit(Deck d) throws Exception{
+    public boolean dealerHit(Deck d) throws OverdrawnException{
         if(tot()<17){
             hit(d);
             return true;
@@ -59,6 +92,9 @@ public class Hand2{
         else{
             return false;
         }
+    }
+    public boolean dealerHit() throws OverdrawnException{
+        return dealerHit(defaultDeck);
     }
     
     int highNutBust(LinkedList<Integer> l) throws BustException{
@@ -107,12 +143,12 @@ public class Hand2{
             return highNutBust(x);
         }
         catch(BustException e){
-            return 22;
+            return 0;
         }
     }
     
     public boolean bust(){
-        return tot()>21;
+        return tot()==0;
     }
     
     public int size(){
@@ -122,6 +158,22 @@ public class Hand2{
     
     public boolean isSplit(){
         return l.get(0).getNum().equals(l.get(1).getNum()) && size() == 2;
+    }
+    
+    public Status vs(Hand2 d){
+        int x = Integer.compare(tot(), d.tot());
+        Status o;
+        switch(x){
+            case(-1):
+                o = Status.LOSE;
+                break;
+            case(0):
+                o = Status.BE;
+                break;
+            default:
+                o = Status.WIN;
+        }
+        return o;
     }
 }
 

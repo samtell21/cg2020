@@ -1,4 +1,4 @@
-package card_game;
+package card_game.general;
 
 import java.util.LinkedList;
 import java.util.Random;
@@ -16,6 +16,7 @@ public class Deck{
         init(1);
     }
     
+    //TODO deck num exception (ctrl-f when refactoring)
     private void init(int n) throws Exception{
         if(n<1) throw new Exception("number of decks must be greater than 0");
         deck = new LinkedList<>();
@@ -44,6 +45,17 @@ public class Deck{
         Card c = deck.remove(i);
         table.add(c);
         return c;
+    }
+    
+    private Card draw(int i){
+        Card c = deck.remove(i);
+        table.add(c);
+        return c;
+    }
+    
+    public boolean draw(Card r) throws OverdrawnException{
+        return deck.remove(r);
+        
     }
     
     protected void swap(){

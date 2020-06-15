@@ -1,4 +1,4 @@
-package card_game;
+package card_game.general;
 
 public class Card{
     private String[] nums = {"A","2","3","4","5","6","7","8","9","10","J","Q","K"};
@@ -25,5 +25,9 @@ public class Card{
     
     public String toString(){
         return num+" of "+suit;
+    }
+    
+    public boolean equals(Object c){
+        return this.toString().equals(c.toString());
     }
 }
