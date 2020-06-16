@@ -10,6 +10,11 @@ public class Jop
                 null, c, null);
     }
     
+    public Object capture(String s, String t, Object[] c)
+    {
+        return c[capturedMessageDialog(s,t,c)];
+    }
+    
     public Object dropDownInputDialog(String s, String t, Object[] c, int i)
     {
         return JOptionPane.showInputDialog(null,s,t,JOptionPane.QUESTION_MESSAGE,null,c,c[i]);

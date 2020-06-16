@@ -4,9 +4,10 @@ package card_game.bj;
 import card_game.general.*;
 import java.util.*;
 import java.io.*;
-import cust.Jop;
+import cust.*;
 
 enum Status {WIN, LOSE, BE}
+enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No}
 
 public class BlackJack{
     public static void main(String[] a) throws Exception{
@@ -31,17 +32,16 @@ public class BlackJack{
     final int MAXHANDS = 5;
     final String MONEYFILE = ".money";
     
-    private final Object[] OPS = {"OK", "Hit","Stay","Double Down","Split", "Next","Exit","Yes","No"};
-    private Object[][] OPTIONS =
+    private final Object[][] OPTIONS =
         {
-                {OPS[0],OPS[6]},                //0: OK,Exit
-                {OPS[7],OPS[8]},                //1: Yes,No
-                {OPS[5]},                       //2: Next
-                {OPS[1],OPS[2]},                //3: Hit,Stay
-                {OPS[1],OPS[2],OPS[3]},         //4: Hit,Stay,Double Down
-                {OPS[1],OPS[2],OPS[3],OPS[4]},  //5: Hit,Stay,Double Down, Split
-                {OPS[2]},                       //6: Stay
-                {OPS[0]}                        //7: OK
+                {Opts.Ok, Opts.Exit},                               //0: OK,Exit
+                {Opts.Yes,Opts.No},                                 //1: Yes,No
+                {Opts.Next},                                        //2: Next
+                {Opts.Hit,Opts.Stay},                               //3: Hit,Stay
+                {Opts.Hit,Opts.Stay,Opts.Double_Down},              //4: Hit,Stay,Double Down
+                {Opts.Hit,Opts.Stay,Opts.Double_Down,Opts.Split},   //5: Hit,Stay,Double Down, Split
+                {Opts.Stay},                                        //6: Stay
+                {Opts.Ok}                                           //7: OK
         };
             
         
@@ -80,7 +80,17 @@ public class BlackJack{
     
     
     
-    
+    private void playHands() throws Exception{
+        Opts o;
+        for(int i = 0; i<hands.size(); i++){
+            do{
+                o = (Opts) j.capture(output(i), null, optionsOn(i));
+                Hand2 h = hands.get(i).doThis(o, deck, this);
+                if(o==Opts.Split) hands.add(h);
+            }while(o!=Opts.Stay);
+        }
+    }
+
     
     
     
@@ -112,6 +122,9 @@ public class BlackJack{
             throw new WTF("not enough cards in the deck to deal...");
         }
     }
+    private void initDeal() throws WTF{
+        initDeal(1);
+    }
     
     private void betHand(int i, int b){
         hands.get(i).bet(b);
@@ -127,7 +140,7 @@ public class BlackJack{
                 b *= 2;
                 break;
             case LOSE:
-                b *= -1;
+                b *= 0;
                 break;
         }
         m += b;
@@ -141,24 +154,55 @@ public class BlackJack{
     
     private Object[] optionsOn(int i){
         Hand2 h = hands.get(i);
+        if(h.bust() || h.tot()==21 || h.getDD()) return OPTIONS[6];
         if(h.isSplit()) return OPTIONS[5];
         if(h.size()==2) return OPTIONS[4];
-        if(h.bust() || h.tot()==21) return OPTIONS[6];
         return OPTIONS[3];
+    }
+    
+    private String bets(){
+        String o = Integer.toString(hands.get(0).getBet());
+        for(int i = 1;i<hands.size();i++){
+            o+=", "+hands.get(i).getBet();
+        }
+        return o;
+    }
+    
+    protected void bet(int i, int n){
+        hands.get(i).bet(n);
+        m-=n;
+    }
+    protected void bet(Hand2 h, int n){
+        h.bet(n);
+        m-=n;
     }
     
     
     
-    public void test() throws WTF, OverdrawnException{
-        initDeal(1);
-        j.capturedMessageDialog(hands.get(0).toString(), null, optionsOn(0));
-        hands.get(0).hit(deck);
-        j.capturedMessageDialog(hands.get(0).toString(), null, optionsOn(0));
-        hands.get(0).hit(deck);
-        j.capturedMessageDialog(hands.get(0).toString(), null, optionsOn(0));
-        hands.get(0).hit(deck);
-        j.capturedMessageDialog(hands.get(0).toString(), null, optionsOn(0));
-        hands.get(0).hit(deck);
+    private String output(int i){
+        String a = "Bet";
+        String b = "Hand";
+        String c = (hands.size()==1) ? "" : "s";
+        a+= c+": ";
+        b+= c+": ";
+        return "Money: "+m+"\n"+a+bets()+"\n\nPlayer "+b+"\n"+Schmutils.selectString(hands,i)+"\n\nDealer Hand: "+dealer.dealerString()+"\n";
+    }
+    
+    public String output(){
+        return output(0);
+    }
+    
+    
+    
+    
+    public void test() throws WTF, OverdrawnException, Exception{
+        hands.add(new Hand2(new Card(0,0), new Card(0,1)));
+        dealer = new Hand2();
+        bet(0,10);
+        
+        playHands();
+        System.out.println(dealer.toString()+"\n"+statusHand(0));
+        
         
     }
     
