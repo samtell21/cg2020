@@ -10,14 +10,10 @@ enum Status {WIN, LOSE, BE}
 enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No}
 
 public class BlackJack{
-    public static void main(String[] a) throws Exception{
-        BlackJack bj = new BlackJack();
-        bj.test();
-    }
     
     
     
-    Jop j;
+
     private int m;
     public int getM(){
         return m;
@@ -46,13 +42,8 @@ public class BlackJack{
             
         
     //TODO deck num exception (ctrl-f when refactoring)
-    private void init(int n) throws Exception{
-    
-        j = new Jop();
-        hands = new LinkedList<>();
-        deck = new Deck(n);
+    public BlackJack() throws Exception{
         m = 100;
-        //TODO create file if it doesn't exist...
         try{
             br = new BufferedReader(new FileReader(MONEYFILE));
             m = Integer.parseInt(br.readLine());
@@ -67,16 +58,21 @@ public class BlackJack{
         }
         
     }
-    public BlackJack(int n) throws Exception{
-        init(n);
-    }
-    public BlackJack() throws Exception{
-        init(1);
-    }
     
     
-    public void playRound(){
-                
+    public void playGame() throws WTF, OverdrawnException, SplitException, Exception{    
+        if(splash()==Opts.Exit) System.exit(0);
+        
+        deck = new Deck(deckNum());
+        timeToPlay();
+        
+        do{
+            hands = new LinkedList<>();
+            initDeal(manyHands());
+            betting();
+            playHands();
+            dealerBet();
+        }while(finalFrame() != Opts.Exit);
     }
     
     
@@ -85,18 +81,45 @@ public class BlackJack{
         Opts o;
         for(int i = 0; i<hands.size(); i++){
             do{
-                o = (Opts) j.capture(output(i), null, optionsOn(i));
+                o = (Opts) Jop.capture(output(i), null, optionsOn(i));
                 Hand2 h = hands.get(i).doThis(o, deck, this);
                 if(o==Opts.Split) hands.add(h);
             }while(o!=Opts.Stay);
         }
     }
 
+    private void dealerBet() throws OverdrawnException{
+        do{
+            Jop.capture(output(), null, OPTIONS[2]);
+        }while(dealer.dealerHit(deck));
+    }
     
+    private Opts finalFrame(){
+        Jop.capture(finalOut(), null, OPTIONS[7]);
+        hands.forEach((h) -> {
+            resolveHand(h);
+        });
+        save();
+        return (Opts) Jop.capture("Money: "+m, MONEYFILE, OPTIONS[0]);
+    }
     
-    
-    
-    
+    private Opts splash(){
+        return (Opts) Jop.capture("Play BlackJack", null, OPTIONS[0]);
+    }
+    private int deckNum(){
+        return (int) Jop.dropDownNums("How many decks would you like to play with?", null, 1, 4, 0);
+    }
+    private void timeToPlay(){
+        Jop.capture("Ok let's get started!", null, OPTIONS[7]);
+    }
+    private int manyHands(){
+        return (int) Jop.dropDownNums("How many hands this round?", null, 1, 5, 0);
+    }
+    private void betting(){
+        for(int i = 0; i<hands.size(); i++){
+            bet(i, (int) Jop.dropDownNums("Money: "+m+"\n\nBet for hand" + (i+1)+"\n", null, 0, m, 0));
+        }
+    }
     
     
     private void save(){
@@ -126,14 +149,7 @@ public class BlackJack{
         initDeal(1);
     }
     
-    private void betHand(int i, int b){
-        hands.get(i).bet(b);
-        m -= b;
-    }
-    
-    
-    private void resolveHand(int i, Status s){
-        Hand2 h = hands.get(i);
+    private void resolveHand(Hand2 h, Status s){
         int b = h.getBet();
         switch(s){
             case WIN:
@@ -145,12 +161,20 @@ public class BlackJack{
         }
         m += b;
     }
-    private void resolveHand(int i){
-        resolveHand(i, statusHand(i));
+    private void resolveHand(int i, Status s){
+        resolveHand(hands.get(i), s);
+    }
+    private void resolveHand(Hand2 h){
+        resolveHand(h, statusHand(h));
+    }
+    
+    private Status statusHand(Hand2 h){
+        return h.vs(dealer);
     }
     private Status statusHand(int i){
-        return hands.get(i).vs(dealer);
+        return statusHand(hands.get(i));
     }
+    
     
     private Object[] optionsOn(int i){
         Hand2 h = hands.get(i);
@@ -168,40 +192,51 @@ public class BlackJack{
         return o;
     }
     
-    protected void bet(int i, int n){
-        hands.get(i).bet(n);
-        m-=n;
-    }
     protected void bet(Hand2 h, int n){
         h.bet(n);
         m-=n;
     }
+    private void bet(int i, int n){
+        bet(hands.get(i), n);
+    }
     
-    
-    
-    private String output(int i){
+    private String plural(){
+        return (hands.size()==1) ? "" : "s";
+    }
+    private String outHeader(){
         String a = "Bet";
+        a+= plural()+": ";
+        return "Money: "+m+"\n"+a+bets()+"\n\n";
+    }
+    
+    private String output(int i, boolean playing){
         String b = "Hand";
-        String c = (hands.size()==1) ? "" : "s";
-        a+= c+": ";
-        b+= c+": ";
-        return "Money: "+m+"\n"+a+bets()+"\n\nPlayer "+b+"\n"+Schmutils.selectString(hands,i)+"\n\nDealer Hand: "+dealer.dealerString()+"\n";
+        b+= plural()+": ";
+        return playing ?
+                outHeader()+b+"\n"+Schmutils.selectString(hands,i)+"\n\nDealer Hand: "+dealer.dealerString()+"\n":
+                outHeader()+b+"\n"+hands+"\n\nDealer Hand: "+dealer+"\n";
+    }
+    private String output(int i){
+        return output(i, true);
     }
     
-    public String output(){
-        return output(0);
+    private String output(){
+        return output(0, false);
     }
     
-   
+    private String finalOut(){
+        String o = outHeader();
+        o = hands.stream().map((h) -> 
+                h + statusHand(h).toString()+"\n"
+        ).reduce(o, String::concat);
+        return o+"\n\n"+dealer;
+    }
     
     
     
-    public void test() throws WTF, OverdrawnException, SplitException{
-        initDeal();
-        bet(0, 10);
-        playHands();
-        System.out.println(dealer.toString()+"\n"+statusHand(0));
-        
+    public void test() throws WTF, OverdrawnException, SplitException, Exception{
+
+        System.out.println(manyHands());
         
     }
     

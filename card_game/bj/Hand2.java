@@ -22,7 +22,7 @@ public class Hand2{
         
         defaultDeck = d;
     }
-    protected Hand2 (Card c, Deck d) throws OverdrawnException{
+    private Hand2 (Card c, Deck d) throws OverdrawnException{
         b=0;
         l.add(c);
         hit(d);
@@ -30,8 +30,9 @@ public class Hand2{
         defaultDeck = d;
     }
     
+/*
     //TODO deck num exception (ctrl-f when refactoring)
-    public Hand2(Card c, Card d) throws Exception, OverdrawnException{
+    protected Hand2(Card c, Card d) throws Exception, OverdrawnException{
         b = 0;
         l.add(c);
         l.add(d);
@@ -39,32 +40,27 @@ public class Hand2{
         defaultDeck = new Deck();
         if(!(defaultDeck.draw(c) && defaultDeck.draw(d))) throw new OverdrawnException("cannot create... gonna refactor anyway, who cares");
     }
+
     
     //TODO deck num exception (ctrl-f when refactoring)
-    public Hand2() throws Exception{
+    private Hand2() throws Exception{
         defaultDeck = new Deck();
         
         b = 0;
         hit(); hit();
     }
+*/
     
     public final void hit(Deck d) throws OverdrawnException{
         l.add(d.drawRand());
     }
-    
-    public final void hit() throws OverdrawnException{
+/*  
+    private void hit() throws OverdrawnException{
         hit(defaultDeck);
     }
+*/
     
-    public Hand2 split(Deck d) throws OverdrawnException, SplitException{
-        if(!isSplit())
-            throw new SplitException("Hand not splittable");
-        hit(d);
-        return new Hand2(l.remove(1),d);
-    }
-    public Hand2 split() throws OverdrawnException, SplitException{
-        return split(defaultDeck);
-    }
+
     public Hand2 split(Deck d, BlackJack bj) throws OverdrawnException, SplitException{
         if(!isSplit())
             throw new SplitException("Hand not splittable");
@@ -74,11 +70,9 @@ public class Hand2{
         return h;
     }
     
-    public Hand2 split(BlackJack bj) throws OverdrawnException, SplitException{
-        return split(defaultDeck, bj);
-    }
+
     
-    public void bet(int n){
+    void bet(int n){
         b+=n;
     }
     public void bet(int n, BlackJack bj){
@@ -89,22 +83,12 @@ public class Hand2{
         return b;
     }
     
-    public void doubledown(Deck deck) throws OverdrawnException{
-        b *= 2;
-        dd = true;
-        hit(deck);
-    }
-    public void doubledown() throws OverdrawnException{
-        doubledown(defaultDeck);
-    }
     public void doubledown(Deck deck, BlackJack bj) throws OverdrawnException{
         bj.bet(this, b);
         dd= true;
         hit(deck);
     }
-    public void doubledown(BlackJack bj) throws OverdrawnException{
-        doubledown(defaultDeck, bj);
-    }
+
     
     @Override
     public String toString(){
@@ -115,7 +99,7 @@ public class Hand2{
     }
     
     public boolean dealerHit(Deck d) throws OverdrawnException{
-        if(tot()<17){
+        if(tot()<17 && !bust()){
             hit(d);
             return true;
         }
@@ -123,9 +107,7 @@ public class Hand2{
             return false;
         }
     }
-    public boolean dealerHit() throws OverdrawnException{
-        return dealerHit(defaultDeck);
-    }
+
     
     private int highNutBust(LinkedList<Integer> l) throws BustException{
         LinkedList<Integer> m = new LinkedList<>();
@@ -206,19 +188,7 @@ public class Hand2{
         return o;
     }
     
-    //split exception
-    Hand2 doThis(Opts o, Deck d) throws OverdrawnException, SplitException{
-        Hand2 r = this;
-        switch(o){
-            case Hit:           hit(d);          break;
-            case Double_Down:   doubledown(d);   break;
-            case Split:         r = split(d); 
-        }
-        return r;
-    }
-    Hand2 doThis(Opts o) throws OverdrawnException, SplitException{
-        return doThis(o, defaultDeck);
-    }
+
     Hand2 doThis(Opts o, Deck d, BlackJack bj) throws OverdrawnException, SplitException{
         Hand2 r = this;
         switch(o){
