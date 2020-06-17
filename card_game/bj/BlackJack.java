@@ -51,7 +51,7 @@ public class BlackJack{
         j = new Jop();
         hands = new LinkedList<>();
         deck = new Deck(n);
-        
+        m = 100;
         //TODO create file if it doesn't exist...
         try{
             br = new BufferedReader(new FileReader(MONEYFILE));
@@ -59,7 +59,8 @@ public class BlackJack{
             br.close();
         }
         catch(IOException e){
-            System.out.println("File not Found");
+            System.out.println("File not Found, money set to 100");
+            save();
         }
         catch(NumberFormatException er){
             System.out.println("Number Format Exception");
@@ -80,7 +81,7 @@ public class BlackJack{
     
     
     
-    private void playHands() throws Exception{
+    private void playHands() throws OverdrawnException, SplitException{
         Opts o;
         for(int i = 0; i<hands.size(); i++){
             do{
@@ -99,7 +100,6 @@ public class BlackJack{
     
     
     private void save(){
-        //TODO better exception handling
         try{
             bw = new BufferedWriter(new FileWriter(MONEYFILE));
             bw.write(Integer.toString(m));
@@ -192,14 +192,13 @@ public class BlackJack{
         return output(0);
     }
     
+   
     
     
     
-    public void test() throws WTF, OverdrawnException, Exception{
-        hands.add(new Hand2(new Card(0,0), new Card(0,1)));
-        dealer = new Hand2();
-        bet(0,10);
-        
+    public void test() throws WTF, OverdrawnException, SplitException{
+        initDeal();
+        bet(0, 10);
         playHands();
         System.out.println(dealer.toString()+"\n"+statusHand(0));
         
