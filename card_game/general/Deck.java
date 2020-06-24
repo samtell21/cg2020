@@ -9,23 +9,29 @@ public class Deck{
     protected LinkedList<Card> table;
     protected LinkedList<Card> burn;
     
-    public Deck(int n) throws Exception{
+    public Deck(int n) throws DeckNumException, WTF{
         init(n);
     }
-    public Deck() throws Exception{
+    public Deck() throws DeckNumException, WTF{
         init(1);
     }
     
     //TODO deck num exception (ctrl-f when refactoring)
-    private void init(int n) throws Exception{
-        if(n<1) throw new Exception("number of decks must be greater than 0");
+    private void init(int n) throws DeckNumException, WTF{
+        if(n<1) throw new DeckNumException("number of decks must be greater than 0");
         deck = new LinkedList<>();
         table = new LinkedList<>();
         burn = new LinkedList<>();
         for(int k = 0; k<n; k++)
             for(int i = 0; i<13; i++)
-                for(int j = 0; j<4; j++)
-                    deck.add(new Card(i,j));
+                for(int j = 0; j<4; j++){
+                    try{
+                        deck.add(new Card(i,j));
+                    }
+                    catch(Exception e){
+                        throw new WTF("bad card");
+                    }
+                }
     }
     
     public Card drawRand() throws OverdrawnException{

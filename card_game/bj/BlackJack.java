@@ -10,9 +10,6 @@ enum Status {WIN, LOSE, BE}
 enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No}
 
 public class BlackJack{
-    
-    
-    
 
     private int m;
     public int getM(){
@@ -26,7 +23,7 @@ public class BlackJack{
     BufferedWriter bw;
     
     final int MAXHANDS = 5;
-    final String MONEYFILE = ".money";
+    String MONEYFILE = ".money";
     
     private final Object[][] OPTIONS =
         {
@@ -60,7 +57,7 @@ public class BlackJack{
     }
     
     
-    public void playGame() throws WTF, OverdrawnException, SplitException, Exception{    
+    public void playGame() throws WTF, OverdrawnException, SplitException, DeckNumException{    
         if(splash()==Opts.Exit) System.exit(0);
         
         deck = new Deck(deckNum());
