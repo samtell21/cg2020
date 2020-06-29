@@ -7,3 +7,8 @@ TODO:
 - 'game' and 'hand' abstract classes
 - throw a cancel whenever Jop return -1 or null
 - handle all the exceptions in playGame()
+- add 'insufficient funds'
+
+
+After a couple rounds, got overdrawn exception, caught by WTF in initdeal...  why didn't it swap??
+
