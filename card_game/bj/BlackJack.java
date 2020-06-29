@@ -51,30 +51,73 @@ public class BlackJack{
             save();
         }
         catch(NumberFormatException er){
-            System.out.println("Number Format Exception");
+            System.out.println("Number Format Exception, money set to 100");
+            save();
         }
         
     }
     
     
-    public void playGame() throws WTF, OverdrawnException, SplitException, DeckNumException{    
-        if(splash()==Opts.Exit) System.exit(0);
+    public void playGame() throws WTF, OverdrawnException, SplitException, DeckNumException{
+        try{
+            if(splash()==Opts.Exit) System.exit(0);
+            deck = new Deck(deckNum());
+            timeToPlay();
+        }
+        catch(Cancel c){
+            System.exit(0);
+        }
         
-        deck = new Deck(deckNum());
-        timeToPlay();
-        
-        do{
-            hands = new LinkedList<>();
-            initDeal(manyHands());
-            betting();
-            playHands();
-            dealerBet();
-        }while(finalFrame() != Opts.Exit);
+        try{
+            do{
+             
+                while(true){
+                    try{
+                        hands = new LinkedList<>();
+                        initDeal(manyHands());
+                    }
+                    catch(Cancel c){
+                        System.exit(0);
+                    }
+                    try{
+                        betting();
+                        break;
+                    }
+                    catch(Cancel c){
+                        
+                    }
+                }
+                try{
+                    playHands();
+                    dealerBet();
+                }
+                catch(Cancel c){
+                    abandon();
+                    continue;
+                }
+                try{
+                    finalFrame();
+                }
+                catch(Cancel c){}
+            }while(recap() != Opts.Exit);
+        }
+        catch(Cancel c){
+            System.exit(0);
+        }
+    }
+    
+    public void abandon(){
+        try{
+            Opts o = (Opts) Jop.capture("Are you sure you want to abandon this hand?  Your wager will not be returned.", null, OPTIONS[1]);
+            if(o==Opts.Yes){
+                save();
+            }
+        }
+        catch(Cancel c){}
     }
     
     
-    
-    private void playHands() throws OverdrawnException, SplitException{
+    private void playHands() throws OverdrawnException, SplitException, Cancel{
         Opts o;
         for(int i = 0; i<hands.size(); i++){
             do{
@@ -85,36 +128,40 @@ public class BlackJack{
         }
     }
 
-    private void dealerBet() throws OverdrawnException{
+    private void dealerBet() throws OverdrawnException, Cancel{
         do{
             Jop.capture(output(), null, OPTIONS[2]);
         }while(dealer.dealerHit(deck));
     }
     
-    private Opts finalFrame(){
+    private void finalFrame() throws Cancel{
         Jop.capture(finalOut(), null, OPTIONS[7]);
         hands.forEach((h) -> {
             resolveHand(h);
         });
         save();
+        
+    }
+    
+    private Opts recap() throws Cancel{
         return (Opts) Jop.capture("Money: "+m, MONEYFILE, OPTIONS[0]);
     }
     
-    private Opts splash(){
+    private Opts splash() throws Cancel{
         return (Opts) Jop.capture("Play BlackJack", null, OPTIONS[0]);
     }
-    private int deckNum(){
+    private int deckNum() throws Cancel{
         return (int) Jop.dropDownNums("How many decks would you like to play with?", null, 1, 4, 0);
     }
-    private void timeToPlay(){
+    private void timeToPlay() throws Cancel{
         Jop.capture("Ok let's get started!", null, OPTIONS[7]);
     }
-    private int manyHands(){
+    private int manyHands() throws Cancel{
         return (int) Jop.dropDownNums("How many hands this round?", null, 1, 5, 0);
     }
-    private void betting(){
+    private void betting() throws Cancel{
         for(int i = 0; i<hands.size(); i++){
-            bet(i, (int) Jop.dropDownNums("Money: "+m+"\n\nBet for hand" + (i+1)+"\n", null, 0, m, 0));
+            bet(i, (int) Jop.dropDownNums("Money: "+m+"\n\nBet for hand " + (i+1)+"\n", null, 0, m, 0));
         }
     }
     
@@ -126,7 +173,7 @@ public class BlackJack{
             bw.close();
         }
         catch(IOException e){
-            System.out.println("File not Found");
+            System.out.println(e.getMessage());
         }
     }
     
@@ -231,11 +278,7 @@ public class BlackJack{
     
     
     
-    public void test() throws WTF, OverdrawnException, SplitException, Exception{
 
-        System.out.println(manyHands());
-        
-    }
     
 }
 
