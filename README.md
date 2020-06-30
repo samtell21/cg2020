@@ -5,7 +5,7 @@ TODO:
 - streamline betting
 - javadoc comments
 - 'game' and 'hand' abstract classes
-- add 'insufficient funds'
+- improve logic with Cancel control values
+- betting block needs to be DRY!
 
 
-After a couple rounds, got overdrawn exception, caught by WTF in initdeal...  why didn't it swap??

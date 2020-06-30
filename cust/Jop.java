@@ -16,6 +16,14 @@ public class Jop
         return c[capturedMessageDialog(s,t,c)];
     }
     
+    public static Object message(String s, String t, Object[] c){
+        try{
+            return Jop.capture(s, t, c);
+        }catch(Cancel e){
+            return null;
+        }
+    }
+    
     public static Object dropDownInputDialog(String s, String t, Object[] c, Object i) throws Cancel{
         Object o = JOptionPane.showInputDialog(null,s,t,JOptionPane.QUESTION_MESSAGE,null,c, i);
         if(o==null) throw new Cancel();

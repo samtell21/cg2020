@@ -36,33 +36,33 @@ public class Deck{
     
     public Card drawRand() throws OverdrawnException{
         Random r = new Random();
-        int i;
         
-        try{
-            i = r.nextInt(deck.size());
-        }
-        catch(IllegalArgumentException e){
+        if(deck.isEmpty()){
             swap();
             if(deck.isEmpty())
                 throw new OverdrawnException("All the cards are on the table");
-            return drawRand();
         }
-        
+        int i = r.nextInt(deck.size());
         Card c = deck.remove(i);
         table.add(c);
         return c;
     }
     
+    /*
+    TODO OverdrawnException
     private Card draw(int i){
         Card c = deck.remove(i);
         table.add(c);
         return c;
     }
     
-    public boolean draw(Card r) throws OverdrawnException{
+    TODO OverdrawnException
+    public boolean draw(Card r) {
         return deck.remove(r);
         
     }
+    
+    */
     
     protected void swap(){
         LinkedList<Card> t = deck;
@@ -75,6 +75,11 @@ public class Deck{
             burn.add(table.pop());
     }
     
+    /**
+     *
+     * @return
+     */
+    @Override
     public String toString(){
         return "Deck: "+deck+"\nTable: "+table+"\nBurn: "+burn;
     }

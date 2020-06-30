@@ -39,7 +39,7 @@ public class BlackJack{
             
         
     //TODO deck num exception (ctrl-f when refactoring)
-    public BlackJack() throws Exception{
+    public BlackJack(){
         m = 100;
         try{
             br = new BufferedReader(new FileReader(MONEYFILE));
@@ -58,72 +58,89 @@ public class BlackJack{
     }
     
     
-    public void playGame() throws WTF, OverdrawnException, SplitException, DeckNumException{
+    public void playGame() throws WTF{
         try{
-            if(splash()==Opts.Exit) System.exit(0);
+            if(splash()==Opts.Exit) return;
             deck = new Deck(deckNum());
             timeToPlay();
+        }catch(Cancel c){
+            return;
+        }catch(DeckNumException d){
+            throw new WTF("deck created with negative number");
         }
-        catch(Cancel c){
-            System.exit(0);
-        }
-        
-        try{
-            do{
-             
-                while(true){
+
+        Hand:
+        do{
+            deck.burn();
+            while(true){
+                try{
+                    hands = new LinkedList<>();
+                    int hs = manyHands();
                     try{
-                        hands = new LinkedList<>();
-                        initDeal(manyHands());
-                    }
-                    catch(Cancel c){
-                        System.exit(0);
-                    }
-                    try{
-                        betting();
+                        while(true){
+                            try{
+                                betting();
+                                break;
+                            }catch(FundsException f){
+                                Jop.message(f.getMessage(), null, OPTIONS[7]);
+                            }
+                        }
+                        initDeal(hs);
                         break;
-                    }
-                    catch(Cancel c){
-                        
-                    }
+                    }catch(Cancel c){}
+                }catch(Cancel c){
+                    return;
                 }
+            }
+            while(true){
                 try{
-                    playHands();
+                    while(true){
+                        try{
+                            playHands();
+                            break;
+                        }catch(FundsException f){
+                            Jop.message(f.getMessage(), null, OPTIONS[7]);
+                        }
+                    }
                     dealerBet();
+                    break;
+                }catch(Cancel c){
+                    if(abandon()) return;
+                }catch(OverdrawnException o){
+                    overDrawn(o.getMessage());
+                    break Hand;
                 }
-                catch(Cancel c){
-                    abandon();
-                    continue;
-                }
-                try{
-                    finalFrame();
-                }
-                catch(Cancel c){}
-            }while(recap() != Opts.Exit);
-        }
-        catch(Cancel c){
-            System.exit(0);
-        }
+            }
+            finalFrame();
+
+        }while(recap() != Opts.Exit);
     }
     
-    public void abandon(){
+    private Boolean abandon(){
         try{
             Opts o = (Opts) Jop.capture("Are you sure you want to abandon this hand?  Your wager will not be returned.", null, OPTIONS[1]);
-            if(o==Opts.Yes){
-                save();
-            }
+            if(o==Opts.Yes) save();
+            return o==Opts.Yes;
+            
         }
-        catch(Cancel c){}
+        catch(Cancel c){return false;}
     }
     
-    
-    private void playHands() throws OverdrawnException, SplitException, Cancel{
+    private void overDrawn(String s){
+        Jop.message("Deck is overdrawn: "+s+"\n\nYour wager will be returned",null,OPTIONS[7]);
+    }
+    private void playHands() throws OverdrawnException, Cancel, WTF, FundsException{
         Opts o;
         for(int i = 0; i<hands.size(); i++){
             do{
                 o = (Opts) Jop.capture(output(i), null, optionsOn(i));
-                Hand2 h = hands.get(i).doThis(o, deck, this);
-                if(o==Opts.Split) hands.add(h);
+                try{
+                    Hand2 h = hands.get(i).doThis(o, deck, this);
+                    if(o==Opts.Split) hands.add(h);
+                }catch(SplitException s){
+                    throw new WTF(s.getMessage());
+                }
+                
             }while(o!=Opts.Stay);
         }
     }
@@ -134,8 +151,8 @@ public class BlackJack{
         }while(dealer.dealerHit(deck));
     }
     
-    private void finalFrame() throws Cancel{
-        Jop.capture(finalOut(), null, OPTIONS[7]);
+    private void finalFrame(){
+        Jop.message(finalOut(), null, OPTIONS[7]);
         hands.forEach((h) -> {
             resolveHand(h);
         });
@@ -143,8 +160,12 @@ public class BlackJack{
         
     }
     
-    private Opts recap() throws Cancel{
-        return (Opts) Jop.capture("Money: "+m, MONEYFILE, OPTIONS[0]);
+    private Opts recap() {
+        try{
+            return (Opts) Jop.capture("Money: "+m, MONEYFILE, OPTIONS[0]);
+        }catch(Cancel c){
+            return Opts.Ok;
+        }
     }
     
     private Opts splash() throws Cancel{
@@ -159,7 +180,7 @@ public class BlackJack{
     private int manyHands() throws Cancel{
         return (int) Jop.dropDownNums("How many hands this round?", null, 1, 5, 0);
     }
-    private void betting() throws Cancel{
+    private void betting() throws Cancel, FundsException{
         for(int i = 0; i<hands.size(); i++){
             bet(i, (int) Jop.dropDownNums("Money: "+m+"\n\nBet for hand " + (i+1)+"\n", null, 0, m, 0));
         }
@@ -189,9 +210,6 @@ public class BlackJack{
             throw new WTF("not enough cards in the deck to deal...");
         }
     }
-    private void initDeal() throws WTF{
-        initDeal(1);
-    }
     
     private void resolveHand(Hand2 h, Status s){
         int b = h.getBet();
@@ -205,18 +223,12 @@ public class BlackJack{
         }
         m += b;
     }
-    private void resolveHand(int i, Status s){
-        resolveHand(hands.get(i), s);
-    }
     private void resolveHand(Hand2 h){
         resolveHand(h, statusHand(h));
     }
     
     private Status statusHand(Hand2 h){
         return h.vs(dealer);
-    }
-    private Status statusHand(int i){
-        return statusHand(hands.get(i));
     }
     
     
@@ -236,11 +248,12 @@ public class BlackJack{
         return o;
     }
     
-    protected void bet(Hand2 h, int n){
+    protected void bet(Hand2 h, int n) throws FundsException{
+        if(n>m) throw new FundsException("Insufficient Funds");
         h.bet(n);
         m-=n;
     }
-    private void bet(int i, int n){
+    private void bet(int i, int n) throws FundsException{
         bet(hands.get(i), n);
     }
     
@@ -271,12 +284,20 @@ public class BlackJack{
     private String finalOut(){
         String o = outHeader();
         o = hands.stream().map((h) -> 
-                h + statusHand(h).toString()+"\n"
+                h + " " + statusString(statusHand(h))+"\n"
         ).reduce(o, String::concat);
         return o+"\n\n"+dealer;
     }
     
-    
+    private String statusString(Status s){
+        switch(s){
+            case WIN:   return "Win";
+            case LOSE:  return "Lose";
+            case BE:    return "Break Even";
+            default:    return null;
+        }
+        
+    }
     
 
     

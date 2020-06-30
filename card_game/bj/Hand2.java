@@ -61,7 +61,7 @@ public class Hand2{
 */
     
 
-    public Hand2 split(Deck d, BlackJack bj) throws OverdrawnException, SplitException{
+    public Hand2 split(Deck d, BlackJack bj) throws OverdrawnException, SplitException, FundsException{
         if(!isSplit())
             throw new SplitException("Hand not splittable");
         hit(d);
@@ -75,7 +75,7 @@ public class Hand2{
     void bet(int n){
         b+=n;
     }
-    public void bet(int n, BlackJack bj){
+    public void bet(int n, BlackJack bj) throws FundsException{
         bj.bet(this, n);
     }
     
@@ -83,7 +83,7 @@ public class Hand2{
         return b;
     }
     
-    public void doubledown(Deck deck, BlackJack bj) throws OverdrawnException{
+    public void doubledown(Deck deck, BlackJack bj) throws OverdrawnException, FundsException{
         bj.bet(this, b);
         dd= true;
         hit(deck);
@@ -189,7 +189,7 @@ public class Hand2{
     }
     
 
-    Hand2 doThis(Opts o, Deck d, BlackJack bj) throws OverdrawnException, SplitException{
+    Hand2 doThis(Opts o, Deck d, BlackJack bj) throws OverdrawnException, SplitException, FundsException{
         Hand2 r = this;
         switch(o){
             case Hit:           hit(d);          break;
@@ -198,7 +198,7 @@ public class Hand2{
         }
         return r;
     }
-    Hand2 doThis(Opts o, BlackJack bj) throws OverdrawnException, SplitException{
+    Hand2 doThis(Opts o, BlackJack bj) throws OverdrawnException, SplitException, FundsException{
         return doThis(o, defaultDeck, bj);
     }
     
