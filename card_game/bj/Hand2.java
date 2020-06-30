@@ -202,5 +202,9 @@ public class Hand2{
         return doThis(o, defaultDeck, bj);
     }
     
+    public Boolean blackJack(){
+        return tot()==21 && size() == 2;
+    }
+    
 }
 

@@ -69,7 +69,6 @@ public class BlackJack{
             throw new WTF("deck created with negative number");
         }
 
-        Round:
         do{
             
             while(true){
@@ -85,30 +84,34 @@ public class BlackJack{
                                 Jop.message(f.getMessage(), null, OPTIONS[7]);
                             }
                         }
-                        break;
                     }catch(Cancel c){}
+                    break;
                 }catch(Cancel c){
                     return;
                 }
             }
-            while(true){
-                try{
-                    while(true){
-                        try{
-                            playHands();
-                            break;
-                        }catch(FundsException f){
-                            Jop.message(f.getMessage(), null, OPTIONS[7]);
-                        }
+            try{
+                while(true){
+                    try{
+                        playHands();
+                        break;
+                    }catch(FundsException f){
+                        Jop.message(f.getMessage(), null, OPTIONS[7]);
+                    }catch(Cancel c){
+                        if(abandon()) return;
                     }
-                    dealerBet();
-                    break;
-                }catch(Cancel c){
-                    if(abandon()) return;
-                }catch(OverdrawnException o){
-                    overDrawn(o.getMessage());
-                    break Round;
                 }
+                while(true){
+                    try{
+                        dealerBet();
+                        break;
+                    }catch(Cancel c){
+                        if(abandon()) return;
+                    }
+                }
+            }catch(OverdrawnException o){
+                overDrawn(o.getMessage());
+                break;
             }
             finalFrame();
 
@@ -161,7 +164,7 @@ public class BlackJack{
     
     private Opts recap() {
         try{
-            return (Opts) Jop.capture("Money: "+m, MONEYFILE, OPTIONS[0]);
+            return (Opts) Jop.capture("Money: "+m, null, OPTIONS[0]);
         }catch(Cancel c){
             return Opts.Ok;
         }
@@ -209,16 +212,19 @@ public class BlackJack{
         catch(OverdrawnException e){
             throw new WTF("not enough cards in the deck to deal...");
         }
+        
     }
     
     private void resolveHand(Hand2 h, Status s){
         int b = h.getBet();
         switch(s){
             case WIN:
-                b *= 2;
+                if(h.blackJack()) b *= 3;
+                else b *= 2;
+                
                 break;
             case LOSE:
-                b *= 0;
+                b = 0;
                 break;
         }
         m += b;
