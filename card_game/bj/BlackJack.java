@@ -69,13 +69,13 @@ public class BlackJack{
             throw new WTF("deck created with negative number");
         }
 
-        Hand:
+        Round:
         do{
-            deck.burn();
+            
             while(true){
                 try{
                     hands = new LinkedList<>();
-                    int hs = manyHands();
+                    initDeal(manyHands());
                     try{
                         while(true){
                             try{
@@ -85,7 +85,6 @@ public class BlackJack{
                                 Jop.message(f.getMessage(), null, OPTIONS[7]);
                             }
                         }
-                        initDeal(hs);
                         break;
                     }catch(Cancel c){}
                 }catch(Cancel c){
@@ -108,7 +107,7 @@ public class BlackJack{
                     if(abandon()) return;
                 }catch(OverdrawnException o){
                     overDrawn(o.getMessage());
-                    break Hand;
+                    break Round;
                 }
             }
             finalFrame();
@@ -200,6 +199,7 @@ public class BlackJack{
     
 
     private void initDeal(int n) throws WTF{
+        deck.burn();
         try{
             for(int i = 0; i<n; i++){
                 hands.add(new Hand2(deck));
