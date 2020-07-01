@@ -16,7 +16,7 @@ public class Deck{
         init(1);
     }
     
-    //TODO deck num exception (ctrl-f when refactoring)
+    
     private void init(int n) throws DeckNumException, WTF{
         if(n<1) throw new DeckNumException("number of decks must be greater than 0");
         deck = new LinkedList<>();

@@ -84,8 +84,8 @@ public class BlackJack{
                                 Jop.message(f.getMessage(), null, OPTIONS[7]);
                             }
                         }
+                        break;
                     }catch(Cancel c){}
-                    break;
                 }catch(Cancel c){
                     return;
                 }
