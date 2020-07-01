@@ -6,28 +6,31 @@ import java.util.LinkedList;
 public class Hand2{
     private final LinkedList<Card> l = new LinkedList<>();
     private int b;
+    public int getBet(){
+        return b;
+    }
     private boolean dd = false;
     public boolean getDD(){
         return dd;
     }
-    
-    private final Deck defaultDeck;
+    public final Account player;
+    public final Deck deck;
     
     //TODO rework all of these to use a common init
     //      public Hand2(Card[] l, Deck d) and public Hand2(Card[] l)
     
-    public Hand2(Deck d) throws OverdrawnException{
+    public Hand2(Deck d, Account a) throws OverdrawnException{
+        player = a;
+        deck = d;
         b = 0;
         hit(d); hit(d);
-        
-        defaultDeck = d;
     }
-    private Hand2 (Card c, Deck d) throws OverdrawnException{
+    private Hand2 (Card c, Hand2 h) throws OverdrawnException{
+        player = h.player;
+        deck = h.deck;
         b=0;
         l.add(c);
-        hit(d);
-        
-        defaultDeck = d;
+        hit(deck);
     }
     
 /*
@@ -61,30 +64,27 @@ public class Hand2{
 */
     
 
-    public Hand2 split(Deck d, BlackJack bj) throws OverdrawnException, SplitException, FundsException{
+    public Hand2 split(Deck d) throws OverdrawnException, SplitException, FundsException{
         if(!isSplit())
             throw new SplitException("Hand not splittable");
         hit(d);
-        Hand2 h = new Hand2(l.remove(1),d);
-        h.bet(b, bj);
+        Hand2 h = new Hand2(l.remove(1), this);
+        h.bet(b);
         return h;
     }
     
 
     
-    void bet(int n){
-        b+=n;
-    }
-    public void bet(int n, BlackJack bj) throws FundsException{
-        bj.bet(this, n);
+    void bet(int n) throws FundsException{
+        if(player.bet(n)) b+=n;
+        else throw new FundsException("Insufficient Funds");
     }
     
-    public int getBet(){
-        return b;
-    }
     
-    public void doubledown(Deck deck, BlackJack bj) throws OverdrawnException, FundsException{
-        bj.bet(this, b);
+    
+    public void doubledown(Deck deck) throws OverdrawnException, FundsException, DDException{
+        if(size()!=2) throw new DDException("Cannot double down hands unless size==0");
+        bet(b);
         dd= true;
         hit(deck);
     }
@@ -109,7 +109,7 @@ public class Hand2{
     }
 
     
-    private int highNutBust(LinkedList<Integer> l) throws BustException{
+    private int highNutBust(LinkedList<Integer> l){
         LinkedList<Integer> m = new LinkedList<>();
         while(!l.isEmpty()){
             int x = l.pop();
@@ -117,7 +117,7 @@ public class Hand2{
                 m.add(x);
         }
         if(m.isEmpty())
-            throw new BustException("All are bust!");
+            return 0;
         int x = m.get(0);
         for(int i=1;i<m.size();i++)
             if(m.get(i)>x)
@@ -151,12 +151,7 @@ public class Hand2{
                 }
             }
         }
-        try{
-            return highNutBust(x);
-        }
-        catch(BustException e){
-            return 0;
-        }
+        return highNutBust(x);
     }
     
     public boolean bust(){
@@ -189,17 +184,14 @@ public class Hand2{
     }
     
 
-    Hand2 doThis(Opts o, Deck d, BlackJack bj) throws OverdrawnException, SplitException, FundsException{
+    Hand2 doThis(Opts o, Deck d, BlackJack bj) throws OverdrawnException, SplitException, FundsException, DDException{
         Hand2 r = this;
         switch(o){
             case Hit:           hit(d);          break;
-            case Double_Down:   doubledown(d, bj);   break;
-            case Split:         r = split(d, bj); 
+            case Double_Down:   doubledown(d);   break;
+            case Split:         r = split(d); 
         }
         return r;
-    }
-    Hand2 doThis(Opts o, BlackJack bj) throws OverdrawnException, SplitException, FundsException{
-        return doThis(o, defaultDeck, bj);
     }
     
     public Boolean blackJack(){

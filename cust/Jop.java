@@ -36,4 +36,10 @@ public class Jop
         for(int i=0;i<cs.length;i++) cs[i]=x++;
         return dropDownInputDialog(s,t,cs,initial);
     }
+    
+    public static String input(String s) throws Cancel{
+        var o = JOptionPane.showInputDialog(s);
+        if(o==null || o.equals("")) throw new Cancel();
+        return o;
+    }
 }

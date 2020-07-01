@@ -5,19 +5,21 @@ import card_game.general.*;
 import java.util.*;
 import java.io.*;
 import cust.*;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 enum Status {WIN, LOSE, BE}
 enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No}
 
 public class BlackJack{
 
-    private int m;
-    public int getM(){
-        return m;
-    }
+    
     private LinkedList<Hand2> hands;
     private Hand2 dealer;
     private Deck deck;
+    private JSONObject accountsString;
+    private Account[] accounts;
     
     BufferedReader br;
     BufferedWriter bw;
@@ -40,19 +42,15 @@ public class BlackJack{
         
     //TODO deck num exception (ctrl-f when refactoring)
     public BlackJack(){
-        m = 100;
         try{
+            var p = new JSONParser();
             br = new BufferedReader(new FileReader(MONEYFILE));
-            m = Integer.parseInt(br.readLine());
+            accountsString = (JSONObject) p.parse(br);
             br.close();
         }
-        catch(IOException e){
-            System.out.println("File not Found, money set to 100");
-            save();
-        }
-        catch(NumberFormatException er){
-            System.out.println("Number Format Exception, money set to 100");
-            save();
+        catch(IOException | ParseException e){
+            System.out.println(e.getMessage()+"\n\nError reading accounts");
+            accountsString = new JSONObject();
         }
         
     }
@@ -116,6 +114,34 @@ public class BlackJack{
             finalFrame();
 
         }while(recap() != Opts.Exit);
+    }
+    
+    private Account enterName(){
+        Account a;
+        String o = "";
+        while(true){
+            try{
+                var s = Jop.input("Enter your name");
+                var m = (Integer) accountsString.get(s);
+                
+                
+                if(m==null){
+                    o += "<NEW ACCOUNT>\n\n";
+                    a = newAccount(s);
+                }
+                else a = new Account(s, m);
+                break;
+            }
+            catch(Cancel c){}
+        }
+        try{
+            Jop.capture(o+"Name: "+a.getName()+"\nMoney: "+a.getMoney(), null, OPTIONS[7]);
+        }catch(Cancel c){}
+        return a;
+    }
+    
+    private Account newAccount(String s){
+        return new Account(s,100);
     }
     
     private Boolean abandon(){
@@ -253,15 +279,7 @@ public class BlackJack{
         }
         return o;
     }
-    
-    protected void bet(Hand2 h, int n) throws FundsException{
-        if(n>m) throw new FundsException("Insufficient Funds");
-        h.bet(n);
-        m-=n;
-    }
-    private void bet(int i, int n) throws FundsException{
-        bet(hands.get(i), n);
-    }
+
     
     private String plural(){
         return (hands.size()==1) ? "" : "s";
