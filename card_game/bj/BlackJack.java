@@ -10,7 +10,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 enum Status {WIN, LOSE, BE}
-enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No}
+enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No, New_Account}
 
 public class BlackJack{
 
@@ -115,34 +115,9 @@ public class BlackJack{
 
         }while(recap() != Opts.Exit);
     }
+
     
-    private Account enterName(){
-        Account a;
-        String o = "";
-        while(true){
-            try{
-                var s = Jop.input("Enter your name");
-                var m = (Integer) accountsString.get(s);
-                
-                
-                if(m==null){
-                    o += "<NEW ACCOUNT>\n\n";
-                    a = newAccount(s);
-                }
-                else a = new Account(s, m);
-                break;
-            }
-            catch(Cancel c){}
-        }
-        try{
-            Jop.capture(o+"Name: "+a.getName()+"\nMoney: "+a.getMoney(), null, OPTIONS[7]);
-        }catch(Cancel c){}
-        return a;
-    }
-    
-    private Account newAccount(String s){
-        return new Account(s,100);
-    }
+
     
     private Boolean abandon(){
         try{

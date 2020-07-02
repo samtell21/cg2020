@@ -28,4 +28,9 @@ public class Account {
         money-=n;
         return true;
     }
+    
+    @Override
+    public String toString(){
+        return name+", "+Integer.toString(money);
+    }
 }

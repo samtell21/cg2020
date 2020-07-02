@@ -16,6 +16,15 @@ public class Jop
         return c[capturedMessageDialog(s,t,c)];
     }
     
+    public static void show(String s, String t, Object[] c){
+        try{
+            capture(s,t,c);
+        }
+        catch(Cancel e){}
+    }
+    public static void show(String s){
+        show(s,null, new Object[]{"Ok"});
+    }
     public static Object message(String s, String t, Object[] c){
         try{
             return Jop.capture(s, t, c);
@@ -24,7 +33,7 @@ public class Jop
         }
     }
     
-    public static Object dropDownInputDialog(String s, String t, Object[] c, Object i) throws Cancel{
+    public static Object dropDown(String s, String t, Object[] c, Object i) throws Cancel{
         Object o = JOptionPane.showInputDialog(null,s,t,JOptionPane.QUESTION_MESSAGE,null,c, i);
         if(o==null) throw new Cancel();
         return o;
@@ -34,7 +43,7 @@ public class Jop
         Object[] cs= new Object[last-first+1];
         int x = first;
         for(int i=0;i<cs.length;i++) cs[i]=x++;
-        return dropDownInputDialog(s,t,cs,initial);
+        return dropDown(s,t,cs,initial);
     }
     
     public static String input(String s) throws Cancel{
