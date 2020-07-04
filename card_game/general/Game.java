@@ -9,22 +9,28 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
-import cust.*;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 
 
-
-public abstract class Game {
-    LinkedList<Account> accounts;
-    LinkedList<Hand> hands;
-    int defaultMon;
-    JSONParser p;
-    String acc;
+public abstract class Game implements ActionListener{
+    protected LinkedList<Account> accounts;
+    protected LinkedList<Hand> hands;
+    protected int defaultMon;
+    private JSONParser p;
+    protected String acc;
+    public final String title;
     
-    public Game(String accfile, int defm) throws Cancel, FileException{
+    public abstract JButton[] buttons();
+    
+    public Game(String t, String accfile, int defm){
+        title = t;
         acc = accfile;
         defaultMon = defm;
         accounts = new LinkedList<>();
         p = new JSONParser();
+        
+        
         try(var br = new BufferedReader(new FileReader(acc))){
             var accountsJSON = (JSONObject) p.parse(br);
             accountsJSON.forEach((n,m) -> {
@@ -34,42 +40,19 @@ public abstract class Game {
                 
             });
         }
-        catch(IOException e){
-            System.out.println("Accounts file could not be opened");
+        catch(IOException | ParseException | ClassCastException e){
+            //TODO
         }
-        catch(ParseException | ClassCastException e){
-            var conf = Jop.capture(e.getMessage()+"\n\nError reading accounts in "+acc+"\nis this the right file??", null, new Object[]{"Yes", "No"}).equals("Yes");
-            if(conf){
-                accounts = new LinkedList<>();
-                newAccount();
-            }
-            else throw new FileException("Bad accounts file");
-        }
+    }
+    
+    private String getClassDir(){
+        return "TODO";
     }
     
     public abstract void playGame();
     
-    protected final void newAccount() throws Cancel{
-        String n = Jop.input("Enter your name");
-        accounts.add(new Account(n, defaultMon));
-        Jop.show("Name: "+n+"\nMoney: "+defaultMon);
-    }
     
-    protected Account chooseAccount(String s) throws Cancel{
-        return (Account) Jop.dropDown(s, null, accounts.toArray(), 0);
-    }
-    
-    protected Boolean abandon() throws IOException{
-        try{
-            Boolean o = Jop.capture("Are you sure you want to abandon this hand?  Your wager will not be returned.", null, new Object[]{"Yes", "No"}).equals("Yes");
-            if(o) save();
-            return o;
-            
-        }
-        catch(Cancel c){
-            return false;
-        }
-    }
+  
     
     protected void save() throws IOException{
         try(var bw = new BufferedWriter(new FileWriter(acc))){
@@ -81,10 +64,7 @@ public abstract class Game {
         }
     }
     
-    private Account chooseAccount() throws Cancel{
-        //drop down with a new account button
-        //learn more about joptionpane
-    }
+    
     
     
 }

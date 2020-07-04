@@ -10,3 +10,6 @@ TODO:
 - betting block needs to be DRY!
 - EVERYTHING NEEDS TO BE DRY!
 - funds exception after multiple bets??
+
+-Gam&GameUI
+ - handle bad save file
