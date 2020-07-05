@@ -4,13 +4,13 @@
  * and open the template in the editor.
  */
 package card_game.general;
-
+import javax.swing.*;
 
 /**
  *
  * @author samt
  */
-public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionListener{
+public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionListener, GameUIInterface{
     
     Game game;
     private final String unconfiguredMenu = "this menu has not been configured yet...";
@@ -26,11 +26,13 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
             jPanel2.add(b);
             b.addActionListener(this);
         }
+        putAccounts();
+        giveSelfToGame();
     }
     
     @Override
     public void actionPerformed(java.awt.event.ActionEvent a){
-        if(a.getActionCommand().equals("exit")){
+        if(a.getActionCommand().equalsIgnoreCase("exit")){
             dispose();
             System.exit(0);
         }
@@ -45,30 +47,46 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        outputPane = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         file = new javax.swing.JMenu();
         temp1 = new javax.swing.JMenuItem();
         edit = new javax.swing.JMenu();
         temp2 = new javax.swing.JMenuItem();
+        accountsMenu = new javax.swing.JMenu();
+        addAccount = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(game.title);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 175, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
+        jPanel2.setLayout(new java.awt.GridLayout(1, 0));
 
-        jPanel2.setLayout(new java.awt.GridLayout());
+        outputPane.setText(game.output());
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(outputPane, javax.swing.GroupLayout.DEFAULT_SIZE, 772, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(outputPane, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
 
         file.setText("File");
 
@@ -94,28 +112,32 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
 
         jMenuBar1.add(edit);
 
+        accountsMenu.setText("Accounts");
+
+        addAccount.setText("Add Account");
+        addAccount.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addAccountActionPerformed(evt);
+            }
+        });
+        accountsMenu.add(addAccount);
+
+        jMenuBar1.add(accountsMenu);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 408, Short.MAX_VALUE)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -129,11 +151,39 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
         // TODO add your handling code here:
     }//GEN-LAST:event_temp1ActionPerformed
 
+    private void addAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addAccountActionPerformed
+        String n = JOptionPane.showInputDialog("Enter Name");
+        var a = new Account(n, game.defaultMon);
+        var cb = new AccountCheckBox(a);
+        cb.addActionListener(game);
+        game.accounts.add(cb);
+        cb.setSelected(true);
+        accountsMenu.add(cb);
+        accountsMenu.validate();
+    }//GEN-LAST:event_addAccountActionPerformed
+
+    private void putAccounts(){
+        game.accounts.forEach((a) -> {
+            accountsMenu.add(a);
+        });
+    }
+    
+    @Override
+    public void updateOutput(){
+        outputPane.setText(game.output());
+    }
+    
+    @Override
+    public final void giveSelfToGame(){
+        game.ui = this;
+    }
+    
+
+    
     /**
-     * 
+     * Set the Nimbus look and feel
      */
     public static void laf(){
-        /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -149,17 +199,27 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
             java.util.logging.Logger.getLogger(GameUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
-        //</editor-fold>
+    
+    }
+    
+    public void packCenterShow(){
+        pack();
+        setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu accountsMenu;
+    private javax.swing.JMenuItem addAccount;
     private javax.swing.JMenu edit;
     private javax.swing.JMenu file;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JLabel outputPane;
     private javax.swing.JMenuItem temp1;
     private javax.swing.JMenuItem temp2;
     // End of variables declaration//GEN-END:variables
 }
+
+
