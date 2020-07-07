@@ -10,34 +10,21 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 enum Status {WIN, LOSE, BE}
-enum Opts   {Ok, Hit, Stay, Double_Down, Split, Next, Exit, Yes, No, New_Account}
 
-public class BlackJack{
+
+public class BlackJack extends Game{
 
     
-    private LinkedList<Hand2> hands;
     private Hand2 dealer;
     private Deck deck;
-    private JSONObject accountsString;
-    private Account[] accounts;
     
     BufferedReader br;
     BufferedWriter bw;
     
     final int MAXHANDS = 5;
-    String MONEYFILE = ".money";
+
     
-    private final Object[][] OPTIONS =
-        {
-                {Opts.Ok, Opts.Exit},                               //0: OK,Exit
-                {Opts.Yes,Opts.No},                                 //1: Yes,No
-                {Opts.Next},                                        //2: Next
-                {Opts.Hit,Opts.Stay},                               //3: Hit,Stay
-                {Opts.Hit,Opts.Stay,Opts.Double_Down},              //4: Hit,Stay,Double Down
-                {Opts.Hit,Opts.Stay,Opts.Double_Down,Opts.Split},   //5: Hit,Stay,Double Down, Split
-                {Opts.Stay},                                        //6: Stay
-                {Opts.Ok}                                           //7: OK
-        };
+
             
         
     //TODO deck num exception (ctrl-f when refactoring)
@@ -56,7 +43,7 @@ public class BlackJack{
     }
     
     
-    public void playGame() throws WTF{
+    public void playGame(){
         try{
             if(splash()==Opts.Exit) return;
             deck = new Deck(deckNum());
@@ -170,51 +157,12 @@ public class BlackJack{
             return Opts.Ok;
         }
     }
-    
-    private Opts splash() throws Cancel{
-        return (Opts) Jop.capture("Play BlackJack", null, OPTIONS[0]);
-    }
-    private int deckNum() throws Cancel{
-        return (int) Jop.dropDownNums("How many decks would you like to play with?", null, 1, 4, 0);
-    }
-    private void timeToPlay() throws Cancel{
-        Jop.capture("Ok let's get started!", null, OPTIONS[7]);
-    }
-    private int manyHands() throws Cancel{
-        return (int) Jop.dropDownNums("How many hands this round?", null, 1, 5, 0);
-    }
-    private void betting() throws Cancel, FundsException{
-        for(int i = 0; i<hands.size(); i++){
-            bet(i, (int) Jop.dropDownNums("Money: "+m+"\n\nBet for hand " + (i+1)+"\n", null, 0, m, 0));
-        }
-    }
+  
     
     
-    private void save(){
-        try{
-            bw = new BufferedWriter(new FileWriter(MONEYFILE));
-            bw.write(Integer.toString(m));
-            bw.close();
-        }
-        catch(IOException e){
-            System.out.println(e.getMessage());
-        }
-    }
+    
     
 
-    private void initDeal(int n) throws WTF{
-        deck.burn();
-        try{
-            for(int i = 0; i<n; i++){
-                hands.add(new Hand2(deck));
-            }
-            dealer = new Hand2(deck);
-        }
-        catch(OverdrawnException e){
-            throw new WTF("not enough cards in the deck to deal...");
-        }
-        
-    }
     
     private void resolveHand(Hand2 h, Status s){
         int b = h.getBet();

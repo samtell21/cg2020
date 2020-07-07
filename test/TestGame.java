@@ -20,7 +20,7 @@ public class TestGame extends Game{
     
     public TestGame() {
         super("Test Game", "test.txt", 100);
-        String[] x = new String[]{"button 1", "button 2", "button 3","button 4", "button 5","button 6", "button 7", "hi","there","these","are","buttons","exit"};
+        String[] x = new String[]{"button 1", "button 2", "button 3","button 4", "button 5","button 6", "button 7", "hi","there","these","are","buttons","exit", "debug"};
         var j = new JButton[x.length];
         for(int i = 0; i< j.length; i++){
             j[i] = new JButton(x[i]);
@@ -28,9 +28,12 @@ public class TestGame extends Game{
             j[i].setActionCommand(x[i]);
         }
         buttons = j;
-        
-        out = "";
-        
+        out = "this is a test. \n\n\n I am running tests...\n\n\nbuttons: ";
+    }
+    
+    @Override
+    public void uiInit(){
+        //ui.outputPane.setLayout(new GridLayout());
     }
     
     @Override
@@ -39,8 +42,8 @@ public class TestGame extends Game{
     }
     
     @Override
-    public String output(){
-        return out;
+    public JComponent output(){
+        return new JLabel(out);
     }
     
     @Override
@@ -50,14 +53,19 @@ public class TestGame extends Game{
     
     @Override
     public void actionPerformed(ActionEvent a){
+        if(a.getActionCommand().equals("debug")){
+            debug();
+            return;
+        }
+        
         var s = a.getSource();
         try{
             var b = (JButton) s;       
             b.setEnabled(false);
         } catch(ClassCastException e){}
         out += a.getActionCommand() +"\n";
-        var c = (JComponent) a.getSource();
         ui.updateOutput();
+        
     }
     
     public static void main(String[] a) {
@@ -71,6 +79,18 @@ public class TestGame extends Game{
             x.packCenterShow();
         });
         
+    }
+    
+   
+    
+    @Override
+    public void deal(Account a){
+        System.out.println(a.toString());
+    }
+    
+    @Override
+    public void debug(){
+        dealAll();
     }
     
 }

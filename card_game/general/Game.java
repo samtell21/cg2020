@@ -12,7 +12,8 @@ import java.util.LinkedList;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
+
 
 
 public abstract class Game implements ActionListener{
@@ -20,14 +21,17 @@ public abstract class Game implements ActionListener{
     /**
      *
      */
-    public LinkedList<AccountCheckBox> accounts;
+    LinkedList<AccountCheckBox> accounts;
     protected JButton[] buttons;
     protected LinkedList<Hand> hands;
     public final int defaultMon;
     private JSONParser p;
     protected String acc;
     public final String title;
-    public GameUIInterface ui;
+    public GameUIAbstract ui;
+    private int decknum;
+    protected boolean deckValid;
+    protected Deck deck;
     
     public abstract JButton[] buttons();
     
@@ -37,7 +41,7 @@ public abstract class Game implements ActionListener{
         defaultMon = defm;
         accounts = new LinkedList<>();
         p = new JSONParser();
-        
+        setDecknum(4);
         
         try(var br = new BufferedReader(new FileReader(acc))){
             var accountsJSON = (JSONObject) p.parse(br);
@@ -47,22 +51,36 @@ public abstract class Game implements ActionListener{
                 var cb = new AccountCheckBox(new Account(name, money));
                 cb.addActionListener(this);
                 accounts.add(cb);
-                
             });
         }
         catch(IOException | ParseException | ClassCastException e){
             //TODO
         }
+        
+        try{
+            validate();
+        }catch(DeckNumException d){
+            //TODO log it in the journal
+        }
     }
+    
+   
     
     private String getClassDir(){
         return "TODO";
     }
     
     public abstract void playGame();
-    public abstract String output();
+    public abstract JComponent output();
     
+    public final void setDecknum(int n){
+        decknum=n;
+        deckValid = false;
+    }
     
+    public final void validate() throws DeckNumException{
+        if(!deckValid) deck = new Deck(decknum);
+    }
   
     
     protected void save() throws IOException{
@@ -74,6 +92,23 @@ public abstract class Game implements ActionListener{
             bw.write(j.toString());
         }
     }
+    
+    public void dealAll(){
+        accounts.forEach((a)->{
+            if(a.getState()) deal(a.account);
+        });
+    }
+    
+    
+    
+    public abstract void deal(Account a);
+    
+    public void debug(){
+        //System.out.println(decknum);
+    }
+    
+    public abstract void uiInit();
+    
 }
 
 

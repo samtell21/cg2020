@@ -10,9 +10,8 @@ import javax.swing.*;
  *
  * @author samt
  */
-public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionListener, GameUIInterface{
-    
-    Game game;
+public class GameUI extends GameUIAbstract{
+
     private final String unconfiguredMenu = "this menu has not been configured yet...";
     
     /**
@@ -20,14 +19,13 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
      * @param g The game that we will be playing :P
      */
     public GameUI(Game g) {
-        game = g;
+        super(g);
         initComponents();
         for(javax.swing.JButton b : game.buttons()){
             jPanel2.add(b);
             b.addActionListener(this);
         }
         putAccounts();
-        giveSelfToGame();
     }
     
     @Override
@@ -47,16 +45,66 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel3 = new javax.swing.JPanel();
+        deckOpts = new javax.swing.JFrame();
+        jLabel1 = new javax.swing.JLabel();
+        jSpinner1 = new javax.swing.JSpinner();
+        deckOptsOk = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        outputPane = new javax.swing.JLabel();
+        outputPane = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         file = new javax.swing.JMenu();
-        temp1 = new javax.swing.JMenuItem();
+        deckOptsMenu = new javax.swing.JMenuItem();
         edit = new javax.swing.JMenu();
         temp2 = new javax.swing.JMenuItem();
         accountsMenu = new javax.swing.JMenu();
         addAccount = new javax.swing.JMenuItem();
+
+        deckOpts.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        deckOpts.setTitle("Deck Options");
+        deckOpts.setAlwaysOnTop(true);
+        deckOpts.setLocation(getLocation());
+        deckOpts.setResizable(false);
+        deckOpts.setType(java.awt.Window.Type.UTILITY);
+
+        jLabel1.setText("Number of Decks:");
+
+        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(1, 1, 5, 1));
+
+        deckOptsOk.setText("Ok");
+        deckOptsOk.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deckOptsOkActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout deckOptsLayout = new javax.swing.GroupLayout(deckOpts.getContentPane());
+        deckOpts.getContentPane().setLayout(deckOptsLayout);
+        deckOptsLayout.setHorizontalGroup(
+            deckOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(deckOptsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(116, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, deckOptsLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(deckOptsOk)
+                .addContainerGap())
+        );
+        deckOptsLayout.setVerticalGroup(
+            deckOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(deckOptsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(deckOptsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 177, Short.MAX_VALUE)
+                .addComponent(deckOptsOk)
+                .addContainerGap())
+        );
+
+        deckOpts.pack();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(game.title);
@@ -64,39 +112,26 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
 
         jPanel2.setLayout(new java.awt.GridLayout(1, 0));
 
-        outputPane.setText(game.output());
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(outputPane, javax.swing.GroupLayout.DEFAULT_SIZE, 772, Short.MAX_VALUE)))
-                .addContainerGap())
+        javax.swing.GroupLayout outputPaneLayout = new javax.swing.GroupLayout(outputPane);
+        outputPane.setLayout(outputPaneLayout);
+        outputPaneLayout.setHorizontalGroup(
+            outputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(outputPane, javax.swing.GroupLayout.DEFAULT_SIZE, 464, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+        outputPaneLayout.setVerticalGroup(
+            outputPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 217, Short.MAX_VALUE)
         );
 
         file.setText("File");
 
-        temp1.setText(unconfiguredMenu);
-        temp1.addActionListener(new java.awt.event.ActionListener() {
+        deckOptsMenu.setText("Deck");
+        deckOptsMenu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                temp1ActionPerformed(evt);
+                deckOptsMenuActionPerformed(evt);
             }
         });
-        file.add(temp1);
+        file.add(deckOptsMenu);
 
         jMenuBar1.add(file);
 
@@ -130,14 +165,21 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(outputPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(outputPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
@@ -147,9 +189,9 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
         // TODO add your handling code here:
     }//GEN-LAST:event_temp2ActionPerformed
 
-    private void temp1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_temp1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_temp1ActionPerformed
+    private void deckOptsMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deckOptsMenuActionPerformed
+        deckOpts.setVisible(true);
+    }//GEN-LAST:event_deckOptsMenuActionPerformed
 
     private void addAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addAccountActionPerformed
         String n = JOptionPane.showInputDialog("Enter Name");
@@ -162,6 +204,11 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
         accountsMenu.validate();
     }//GEN-LAST:event_addAccountActionPerformed
 
+    private void deckOptsOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deckOptsOkActionPerformed
+        game.setDecknum((int) jSpinner1.getValue());
+        game.debug();
+    }//GEN-LAST:event_deckOptsOkActionPerformed
+
     private void putAccounts(){
         game.accounts.forEach((a) -> {
             accountsMenu.add(a);
@@ -170,13 +217,11 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
     
     @Override
     public void updateOutput(){
-        outputPane.setText(game.output());
+        outputPane.validate();
+        System.out.println(outputPane.getComponentCount());
     }
     
-    @Override
-    public final void giveSelfToGame(){
-        game.ui = this;
-    }
+
     
 
     
@@ -211,13 +256,16 @@ public class GameUI extends javax.swing.JFrame implements java.awt.event.ActionL
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu accountsMenu;
     private javax.swing.JMenuItem addAccount;
+    private javax.swing.JFrame deckOpts;
+    private javax.swing.JMenuItem deckOptsMenu;
+    private javax.swing.JButton deckOptsOk;
     private javax.swing.JMenu edit;
     private javax.swing.JMenu file;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JLabel outputPane;
-    private javax.swing.JMenuItem temp1;
+    private javax.swing.JSpinner jSpinner1;
+    public javax.swing.JPanel outputPane;
     private javax.swing.JMenuItem temp2;
     // End of variables declaration//GEN-END:variables
 }

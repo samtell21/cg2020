@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package card_game.general;
+import java.util.LinkedList;
 
 /**
  *
@@ -11,6 +12,10 @@ package card_game.general;
  */
 public class Account {
     private final String name;
+    public final LinkedList<Hand> hands = new LinkedList<>();
+    
+    
+    
     public String getName(){
         return name;
     }

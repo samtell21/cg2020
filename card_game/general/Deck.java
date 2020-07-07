@@ -9,15 +9,15 @@ public class Deck{
     protected LinkedList<Card> table;
     protected LinkedList<Card> burn;
     
-    public Deck(int n) throws DeckNumException, WTF{
+    public Deck(int n) throws DeckNumException{
         init(n);
     }
-    public Deck() throws DeckNumException, WTF{
+    public Deck() throws DeckNumException{
         init(1);
     }
     
     
-    private void init(int n) throws DeckNumException, WTF{
+    private void init(int n) throws DeckNumException{
         if(n<1) throw new DeckNumException("number of decks must be greater than 0");
         deck = new LinkedList<>();
         table = new LinkedList<>();
@@ -29,7 +29,7 @@ public class Deck{
                         deck.add(new Card(i,j));
                     }
                     catch(Exception e){
-                        throw new WTF("bad card");
+                        //TODO Log it in the journal
                     }
                 }
     }
