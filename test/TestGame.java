@@ -17,9 +17,14 @@ public class TestGame extends Game{
     
     
     private String out;
+    private final Box box;
+    private final JButton[] buttons;
     
     public TestGame() {
         super("Test Game", "test.txt", 100);
+        
+        box = Box.createVerticalBox();
+        
         String[] x = new String[]{"button 1", "button 2", "button 3","button 4", "button 5","button 6", "button 7", "hi","there","these","are","buttons","exit", "debug"};
         var j = new JButton[x.length];
         for(int i = 0; i< j.length; i++){
@@ -31,10 +36,7 @@ public class TestGame extends Game{
         out = "this is a test. \n\n\n I am running tests...\n\n\nbuttons: ";
     }
     
-    @Override
-    public void uiInit(){
-        //ui.outputPane.setLayout(new GridLayout());
-    }
+
     
     @Override
     public void playGame(){
@@ -43,7 +45,8 @@ public class TestGame extends Game{
     
     @Override
     public JComponent output(){
-        return new JLabel(out);
+        box.add(new JLabel(out));
+        return box;
     }
     
     @Override
@@ -52,7 +55,8 @@ public class TestGame extends Game{
     }
     
     @Override
-    public void actionPerformed(ActionEvent a){
+    public void elseActionPerformed(ActionEvent a){
+        
         if(a.getActionCommand().equals("debug")){
             debug();
             return;
@@ -61,11 +65,10 @@ public class TestGame extends Game{
         var s = a.getSource();
         try{
             var b = (JButton) s;       
-            b.setEnabled(false);
+            //b.setEnabled(false);
         } catch(ClassCastException e){}
-        out += a.getActionCommand() +"\n";
+        out = a.getActionCommand() +"\n";
         ui.updateOutput();
-        
     }
     
     public static void main(String[] a) {
@@ -76,7 +79,7 @@ public class TestGame extends Game{
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             var x = new GameUI(new TestGame());
-            x.packCenterShow();
+            x.viz();
         });
         
     }
