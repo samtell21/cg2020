@@ -85,8 +85,6 @@ public class GameMenuBar extends JMenuBar{
         dnum.add(new JLabel("Number of Decks:"));
         dc.add(dnum);
         //TODO
-        
-       
     }
     
     public void addAccount(Account a){
