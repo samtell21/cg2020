@@ -2,14 +2,10 @@ cg2020
 
 
 TODO:
-- streamline betting
-  -money is in the hand (allows for multiple accounts)
 - javadoc comments
-- 'game' and 'hand' abstract classes
-- improve logic with Cancel control values
-- betting block needs to be DRY!
-- EVERYTHING NEEDS TO BE DRY!
-- funds exception after multiple bets??
 
 -Gam&GameUI
- - handle bad save file
+    - handle bad save file
+    - create a file for the menu bar
+        - put an instance in the game
+            - since accounts are always jcheckboxmenuitems, the whole bar should be in game
